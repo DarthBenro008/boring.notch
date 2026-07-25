@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import CustomNotchPluginSDK
 
 struct CustomLargeButtons: View {
     var action: () -> Void

@@ -7,6 +7,7 @@
 
 import Defaults
 import SwiftUI
+import CustomNotchPluginSDK
 
 struct TabModel: Identifiable {
     let id: String

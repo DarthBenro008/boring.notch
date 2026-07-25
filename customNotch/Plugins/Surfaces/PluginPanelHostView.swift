@@ -4,6 +4,7 @@
 //
 
 import SwiftUI
+import CustomNotchPluginSDK
 
 struct PluginPanelHostView: View {
     let pluginID: PluginID

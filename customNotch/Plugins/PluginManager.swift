@@ -7,6 +7,7 @@ import Combine
 import Defaults
 import Foundation
 import SwiftUI
+import CustomNotchPluginSDK
 
 /// Owns plugin lifecycle and built-in registration.
 @MainActor
@@ -32,17 +33,29 @@ final class PluginManager: ObservableObject {
         rebuildAvailable()
         isBootstrapped = true
 
+        NetworkPathMonitorService.shared.start()
+        if available.contains(where: { isEnabled($0.id) && $0.capabilities.contains(.wifiSSID) }) {
+            WiFiSSIDMonitor.shared.start()
+        }
+
         bootstrapTask = Task { @MainActor in
             for meta in available where isEnabled(meta.id) {
                 await activate(meta.id)
             }
             broadcast(.didLaunch)
+            // Push current network state
+            broadcast(.networkPathChanged(isSatisfied: NetworkPathMonitorService.shared.isSatisfied))
+            if let ssid = WiFiSSIDMonitor.shared.currentSSID {
+                broadcastWiFiSSIDChanged(ssid)
+            }
         }
     }
 
     func shutdown() {
         bootstrapTask?.cancel()
         broadcast(.willTerminate)
+        NetworkPathMonitorService.shared.stop()
+        WiFiSSIDMonitor.shared.stop()
         Task { @MainActor in
             for id in Array(instances.keys) {
                 await deactivate(id)
@@ -60,6 +73,8 @@ final class PluginManager: ObservableObject {
 
     private func registerBuiltIns() {
         register(type: HelloSamplePlugin.self)
+        register(type: WizLampPlugin.self)
+        register(type: AudioOutputPlugin.self)
     }
 
     private func rebuildAvailable() {
@@ -84,6 +99,9 @@ final class PluginManager: ObservableObject {
 
         Task { @MainActor in
             if enabled {
+                if metadataByID[id]?.capabilities.contains(.wifiSSID) == true {
+                    WiFiSSIDMonitor.shared.start()
+                }
                 await activate(id)
             } else {
                 await deactivate(id)
@@ -123,6 +141,14 @@ final class PluginManager: ObservableObject {
     func broadcast(_ event: HostEvent) {
         for host in hosts.values {
             host.deliver(event)
+        }
+    }
+
+    /// SSID events only go to plugins that declared the wifiSSID capability.
+    func broadcastWiFiSSIDChanged(_ ssid: String?) {
+        for (id, host) in hosts {
+            guard metadataByID[id]?.capabilities.contains(.wifiSSID) == true else { continue }
+            host.deliver(.wifiSSIDChanged(ssid: ssid))
         }
     }
 

@@ -41,7 +41,7 @@ public final class PluginEventSubscription {
     private let cancelHandler: () -> Void
     private var cancelled = false
 
-    init(cancel: @escaping () -> Void) {
+    public init(cancel: @escaping () -> Void) {
         self.cancelHandler = cancel
     }
 

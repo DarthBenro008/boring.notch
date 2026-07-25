@@ -13,8 +13,9 @@ Guidance for humans and coding agents working in this repository.
 - Battery / charging live activity
 - Webcam mirror
 - Settings and onboarding
+- **First-party plugins** (tabs, chips, menus, settings — see [docs/plugins.md](./docs/plugins.md))
 
-This repository is a **fork and rebrand** of [Boring Notch](https://github.com/TheBoredTeam/boring.notch) by The Bored Team. Upstream credit lives in `README.md` only — do **not** reintroduce upstream product branding into UI, bundle IDs, or marketing copy.
+This repository is a **fork and rebrand** of [Boring Notch](https://github.com/TheBoredTeam/boring.notch) by The Bored Team. Upstream credit lives in `README.md` only — do **not** reintroduce upstream product branding into UI, bundle IDs, or marketing copy. Product feature status and roadmap live in `README.md`.
 
 ## Branding rules
 
@@ -35,33 +36,27 @@ When adding user-facing strings, use **Custom Notch** / **custom.notch**, never 
 
 ```
 custom.notch/
-├── AGENTS.md                 # This file
-├── README.md                 # User docs + upstream shoutout
+├── AGENTS.md                 # This file (agents / architecture)
+├── README.md                 # Product overview, features, roadmap
+├── docs/
+│   ├── plugins.md              # First-party plugin authoring + limitations
+│   └── plugins-third-party.md  # Third-party bundles (planned/in progress)
 ├── CONTRIBUTING.md
 ├── SECURITY.md
 ├── LICENSE                   # GPL-3.0
-├── THIRD_PARTY_LICENSES
-├── crowdin.yml               # Optional localization sync
-├── customNotch.xcodeproj/    # Xcode project
+├── Packages/
+│   ├── CustomNotchPluginSDK/ # Public plugin API (import CustomNotchPluginSDK)
+│   └── NotchPluginCore/      # WiZ/audio pure logic (swift test)
+├── customNotch.xcodeproj/
 ├── customNotch/              # Main app sources
-│   ├── customNotchApp.swift  # @main App + AppDelegate (window lifecycle)
-│   ├── ContentView.swift     # Root notch UI
-│   ├── CustomViewCoordinator.swift
-│   ├── models/               # View models + Defaults keys (Constants.swift)
-│   ├── managers/             # Music, battery, calendar, volume, brightness, webcam
-│   ├── MediaControllers/     # Per-source media backends
-│   ├── components/           # SwiftUI views (Notch, Shelf, Settings, HUD, …)
-│   ├── Plugins/              # Plugin SDK, host, built-in plugins (file-synced group)
-│   ├── observers/            # Drag, fullscreen, media keys
-│   ├── private/              # Private API helpers (e.g. CGSSpace)
-│   ├── XPCHelperClient/      # Client for accessibility XPC service
-│   ├── Localizable.xcstrings # String catalog
-│   └── Info.plist            # Sparkle feed URL, ATS, etc.
-├── CustomNotchXPCHelper/     # XPC service (accessibility-related helper)
-├── Configuration/dmg/        # DMG packaging scripts
-├── mediaremote-adapter/      # Vendored MediaRemote adapter
-├── updater/appcast.xml       # Sparkle appcast (reset for this fork)
-└── .github/workflows/        # CI, release, CodeQL, optional Crowdin
+│   ├── Plugins/              # Host + built-in plugins (file-synced; no SDK copies)
+│   ├── components/ managers/ MediaControllers/ …
+│   └── …
+├── CustomNotchXPCHelper/
+├── Configuration/dmg/
+├── mediaremote-adapter/
+├── updater/appcast.xml
+└── .github/workflows/
 ```
 
 ## Architecture (mental model)
@@ -176,62 +171,39 @@ GPL-3.0. Modifications must remain GPL-compatible. Preserve attribution for thir
 
 ## Plugin system
 
-Custom Notch supports **in-process, first-party Swift plugins** that register UI and behavior through a host API. Prefer plugins for new optional features (device control, audio picker, etc.) instead of hardcoding more `switch` cases in `ContentView`.
+**Canonical guides:**  
+- First-party: [docs/plugins.md](./docs/plugins.md)  
+- Third-party (planned loader): [docs/plugins-third-party.md](./docs/plugins-third-party.md)
 
-### Layout
+Summary for agents:
 
-```
-customNotch/Plugins/
-├── SDK/                 # PluginID, CustomNotchPlugin, PluginHost, surfaces, storage
-├── PluginManager.swift  # Lifecycle, enable map, built-in registration
-├── PluginRegistry.swift # Registered panels / menus / live activities / settings
-├── PluginHostImpl.swift # Host facade per active plugin
-├── Surfaces/            # PluginPanelHostView, PluginsSettingsView
-└── BuiltIn/
-    └── HelloSample/     # Reference plugin exercising all v1 surfaces
-```
+- Prefer **plugins** for optional features instead of growing `ContentView` switches.
+- Plugins are **in-process** (same sandbox/crash domain). Public API lives in **`import CustomNotchPluginSDK`**.
+- Register first-party types in `PluginManager.registerBuiltIns()`; implement `CustomNotchPlugin`.
+- Template: `Plugins/BuiltIn/HelloSample/HelloSamplePlugin.swift`.
+- `Plugins/` is file-system-synced (host code only). Do **not** re-add SDK sources under `Plugins/SDK/`.
+- Tests: `Packages/CustomNotchPluginSDK` + `Packages/NotchPluginCore` → `swift test`.
+- Host services: `NetworkPathMonitorService`, `WiFiSSIDMonitor` (SSID only to `.wifiSSID` plugins).
+- Third-party load path is **not** implemented yet; SDK has `CNPluginFactory`, `PluginSDKVersion`, `PluginBundleKeys` for the upcoming loader.
 
-The `Plugins/` folder is a **PBXFileSystemSynchronizedRootGroup** — new Swift files under it are compiled automatically.
+### Built-in plugins
 
-### Surfaces plugins can register
+| Plugin | ID | Default |
+|--------|-----|---------|
+| Hello Sample | `custom.notch.plugin.hello` | on |
+| Audio Output | `custom.notch.plugin.audio` | on |
+| WiZ Desk Lamp | `custom.notch.plugin.wiz` | off |
 
-| API | Effect |
-|-----|--------|
-| `registerPanel` | Open-notch tab (`NotchViews.plugin(id)`) |
-| `registerLiveActivity` | Closed-notch chip (priority vs music) |
-| `registerMenuItems` | Extras menu actions |
-| `registerSettings` | Detail section under Settings → Plugins |
-| `showSneakPeek` | Temporary closed-notch toast (not gated on HUD replacement) |
-| `openNotch` / `closeNotch` | Expand/collapse notch windows |
-| `subscribe` | Host events (`didLaunch`, notch open/close, …) |
+### Host wiring (quick map)
 
-### Add a built-in plugin
-
-1. Create `Plugins/BuiltIn/YourPlugin/YourPlugin.swift` conforming to `CustomNotchPlugin`.
-2. Register it in `PluginManager.registerBuiltIns()`:
-   ```swift
-   register(type: YourPlugin.self)
-   ```
-3. In `activate(host:)` register the surfaces you need (see `HelloSamplePlugin`).
-4. Set `metadata.defaultEnabled` and declare `capabilities` (network, wifiSSID, …).
-5. Build and toggle the plugin under **Settings → Plugins**.
-
-Enable state is stored in `Defaults[.pluginEnabledState]`. Per-plugin prefs go through `host.storage` (namespaced `UserDefaults` keys).
-
-### Wiring points in the host
-
-- Bootstrap: `AppDelegate.applicationDidFinishLaunching` → `PluginManager.shared.bootstrap()`
-- Tabs: `TabSelectionView` reads `PluginRegistry.orderedPanels`
-- Open content: `ContentView` `case .plugin(let id): PluginPanelHostView`
-- Closed chip: `PluginRegistry.activeLiveActivity()` in closed-notch priority chain
-- Settings: `PluginsSettingsView` sidebar item
-- Extras: `CustomExtrasMenu` lists `PluginRegistry.menuItems`
-
-### Planned follow-ups
-
-- Host services: `NWPathMonitor`, Wi‑Fi SSID (CoreWLAN + Location)
-- Sample plugins: WiZ lamp, system audio output picker
-- Optional later: load `.cnplugin` bundles from Application Support
+| Concern | Location |
+|---------|----------|
+| Bootstrap | `AppDelegate` → `PluginManager.shared.bootstrap()` |
+| Tabs | `TabSelectionView` ← `PluginRegistry.orderedPanels` |
+| Open panel | `ContentView` → `PluginPanelHostView` |
+| Closed chip | `PluginRegistry.activeLiveActivity()` in closed-notch chain |
+| Settings | `PluginsSettingsView` |
+| Extras menu | `CustomExtrasMenu` ← `PluginRegistry.menuItems` |
 
 ## Useful entry points for new features
 
@@ -239,11 +211,11 @@ Enable state is stored in `Defaults[.pluginEnabledState]`. Per-plugin prefs go t
 |--------------|------------|
 | Notch chrome / open-close | `ContentView.swift`, `CustomViewModel`, `sizing/matters.swift` |
 | New settings pane | `components/Settings/SettingsView.swift` |
-| New live activity | `components/Live activities/`, `CustomViewCoordinator` sneak peek APIs |
+| New live activity (built-in) | `components/Live activities/`, `CustomViewCoordinator` |
 | New media source | `MediaControllers/` + `MediaControllerType` + `MusicManager` |
 | Shelf behavior | `components/Shelf/` |
-| **New optional feature (preferred)** | `Plugins/` + `CustomNotchPlugin` (see Hello Sample) |
+| **New optional feature** | **Plugin** — [docs/plugins.md](./docs/plugins.md) + Hello Sample |
 | Permissions / onboarding | `components/Onboarding/` |
-| Keyboard shortcuts | `Shortcuts/ShortcutConstants.swift`, KeyboardShortcuts package |
+| Keyboard shortcuts | `Shortcuts/ShortcutConstants.swift` |
 
-When in doubt, mirror patterns already used by an adjacent feature rather than inventing a new architecture.
+When in doubt, mirror an adjacent feature or the Hello Sample plugin rather than inventing a new architecture.

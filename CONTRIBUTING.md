@@ -4,6 +4,8 @@ Thanks for helping improve **Custom Notch**.
 
 Custom Notch is a fork of [Boring Notch](https://github.com/TheBoredTeam/boring.notch). Please keep contributions focused on this fork’s goals and branding.
 
+For **plugins**, read [docs/plugins.md](./docs/plugins.md) (authoring steps, surfaces, and limitations). Prefer plugins for optional features instead of hardcoding more branches into core notch UI.
+
 ## Table of Contents
 
 - [Contributing code](#contributing-code)

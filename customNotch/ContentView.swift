@@ -12,6 +12,7 @@ import Defaults
 import KeyboardShortcuts
 import SwiftUI
 import SwiftUIIntrospect
+import CustomNotchPluginSDK
 
 @MainActor
 struct ContentView: View {

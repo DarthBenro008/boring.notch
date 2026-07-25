@@ -4,6 +4,7 @@
 //
 
 import SwiftUI
+import CustomNotchPluginSDK
 
 struct PluginsSettingsView: View {
     @ObservedObject private var manager = PluginManager.shared

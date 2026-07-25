@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import CustomNotchPluginSDK
 
 @MainActor
 final class HelloSamplePlugin: CustomNotchPlugin {

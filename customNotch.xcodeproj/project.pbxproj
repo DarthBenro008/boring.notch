@@ -57,6 +57,8 @@
 		1194E8872EA6DDA7009C82D6 /* CustomNotchSkyLightWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1194E8862EA6DDA7009C82D6 /* CustomNotchSkyLightWindow.swift */; };
 		1194E9402EACC652009C82D6 /* Color+AccentColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1194E93F2EACC652009C82D6 /* Color+AccentColor.swift */; };
 		11A45C792E34E63100CEB175 /* MediaChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11A45C782E34E63100CEB175 /* MediaChecker.swift */; };
+		11C0D1E2F30415263748596B /* NotchPluginCore in Frameworks */ = {isa = PBXBuildFile; productRef = 11B0C1D2E3F405162738495A /* NotchPluginCore */; };
+		11F0A1B2C3D4E5F60718293C /* CustomNotchPluginSDK in Frameworks */ = {isa = PBXBuildFile; productRef = 11E0F1A2B3C4D5E6F708192B /* CustomNotchPluginSDK */; };
 		11C5E3132DFE85970065821E /* SettingsWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11C5E3112DFE85970065821E /* SettingsWindowController.swift */; };
 		11C5E3162DFE88510065821E /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11C5E3152DFE88510065821E /* SettingsView.swift */; };
 		11CC44A22CEE614100C7244B /* CustomViewCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11CC44A12CEE614100C7244B /* CustomViewCoordinator.swift */; };
@@ -347,6 +349,8 @@
 				111BEA6F2ED166E20079DD4E /* MacroVisionKit in Frameworks */,
 				11F748732EC9DA9300F841DB /* Lottie in Frameworks */,
 				14D0321A2C68F32E0096E6A1 /* LaunchAtLogin in Frameworks */,
+				11C0D1E2F30415263748596B /* NotchPluginCore in Frameworks */,
+				11F0A1B2C3D4E5F60718293C /* CustomNotchPluginSDK in Frameworks */,
 				111BEA512ECFBF7F0079DD4E /* MacroVisionKit in Frameworks */,
 				B18654392C6F4990000B926A /* KeyboardShortcuts in Frameworks */,
 				B19016222CC15B3D00E3F12E /* Defaults in Frameworks */,
@@ -805,6 +809,8 @@
 			);
 			name = customNotch;
 			packageProductDependencies = (
+				11E0F1A2B3C4D5E6F708192B /* CustomNotchPluginSDK */,
+				11B0C1D2E3F405162738495A /* NotchPluginCore */,
 				14D032192C68F32E0096E6A1 /* LaunchAtLogin */,
 				14D0321C2C68F3350096E6A1 /* Sparkle */,
 				B18654382C6F4990000B926A /* KeyboardShortcuts */,
@@ -851,6 +857,8 @@
 			);
 			mainGroup = 14CEF4092C5CAED200855D72;
 			packageReferences = (
+				11D0E1F2A3B4C5D6E7F8091A /* XCLocalSwiftPackageReference "Packages/CustomNotchPluginSDK" */,
+				11A0B1C2D3E4F5060708090A /* XCLocalSwiftPackageReference "Packages/NotchPluginCore" */,
 				14D032182C68F32E0096E6A1 /* XCRemoteSwiftPackageReference "LaunchAtLogin-Modern" */,
 				14D0321B2C68F3350096E6A1 /* XCRemoteSwiftPackageReference "Sparkle" */,
 				B18654372C6F4990000B926A /* XCRemoteSwiftPackageReference "KeyboardShortcuts" */,
@@ -1350,6 +1358,17 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCLocalSwiftPackageReference section */
+		11D0E1F2A3B4C5D6E7F8091A /* XCLocalSwiftPackageReference "Packages/CustomNotchPluginSDK" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/CustomNotchPluginSDK;
+		};
+		11A0B1C2D3E4F5060708090A /* XCLocalSwiftPackageReference "Packages/NotchPluginCore" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/NotchPluginCore;
+		};
+/* End XCLocalSwiftPackageReference section */
+
 /* Begin XCRemoteSwiftPackageReference section */
 		111BE95B2ECD71E10079DD4E /* XCRemoteSwiftPackageReference "AsyncXPCConnection" */ = {
 			isa = XCRemoteSwiftPackageReference;
@@ -1442,6 +1461,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		11E0F1A2B3C4D5E6F708192B /* CustomNotchPluginSDK */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 11D0E1F2A3B4C5D6E7F8091A /* XCLocalSwiftPackageReference "Packages/CustomNotchPluginSDK" */;
+			productName = CustomNotchPluginSDK;
+		};
 		111BE95C2ECD71E10079DD4E /* AsyncXPCConnection */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 111BE95B2ECD71E10079DD4E /* XCRemoteSwiftPackageReference "AsyncXPCConnection" */;
@@ -1464,6 +1488,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 1194E8832EA57D23009C82D6 /* XCRemoteSwiftPackageReference "SkyLightWindow" */;
 			productName = SkyLightWindow;
+		};
+		11B0C1D2E3F405162738495A /* NotchPluginCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 11A0B1C2D3E4F5060708090A /* XCLocalSwiftPackageReference "Packages/NotchPluginCore" */;
+			productName = NotchPluginCore;
 		};
 		11F748722EC9DA9300F841DB /* Lottie */ = {
 			isa = XCSwiftPackageProductDependency;

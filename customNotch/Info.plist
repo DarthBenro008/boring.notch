@@ -19,5 +19,9 @@
 	<array>
 		<dict/>
 	</array>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Custom Notch uses your approximate location only to read the current Wi‑Fi network name for plugins that automate actions when you join specific networks (for example, a desk lamp).</string>
+	<key>NSLocationUsageDescription</key>
+	<string>Custom Notch uses your approximate location only to read the current Wi‑Fi network name for plugins that automate actions when you join specific networks (for example, a desk lamp).</string>
 </dict>
 </plist>

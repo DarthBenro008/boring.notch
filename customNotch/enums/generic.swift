@@ -7,6 +7,7 @@
 
 import Foundation
 import Defaults
+import CustomNotchPluginSDK
 
 public enum Style {
     case notch

@@ -5,6 +5,7 @@
 
 import Combine
 import SwiftUI
+import CustomNotchPluginSDK
 
 enum PluginRuntimeStatus: Equatable {
     case inactive

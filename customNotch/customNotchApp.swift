@@ -11,6 +11,7 @@ import Defaults
 import KeyboardShortcuts
 import Sparkle
 import SwiftUI
+import CustomNotchPluginSDK
 
 @main
 struct DynamicNotchApp: App {
