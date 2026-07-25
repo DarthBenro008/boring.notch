@@ -2,10 +2,8 @@
 
 ## Reporting a Vulnerability
 
-The Bored Team and community take security bugs in Boring Notch seriously. We appreciate your efforts to responsibly disclose your findings, and will make every effort to acknowledge your contributions.
+We take security bugs in Custom Notch seriously. Please report vulnerabilities privately via GitHub Security Advisories on this repository (use **Report a Vulnerability** on the Security tab) rather than opening a public issue.
 
-To report a security issue, please use the GitHub Security Advisory ["Report a Vulnerability"](https://github.com/TheBoredTeam/boring.notch/security/advisories/new) tab.
+We will acknowledge receipt and keep you updated on progress toward a fix when possible.
 
-The Bored Team will send a response indicating the next steps in handling your report. After the initial reply to your report, we will keep you informed of the progress towards a fix and full announcement, and may ask for additional information or guidance.
-
-Report security bugs in third-party dependencies to the person or team maintaining the package or dependency.
+Report security bugs in third-party dependencies to the maintainers of those packages when appropriate.

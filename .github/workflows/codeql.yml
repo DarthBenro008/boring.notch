@@ -85,20 +85,20 @@ jobs:
       run: |
         xcodebuild \
           -resolvePackageDependencies \
-          -project boringNotch.xcodeproj \
-          -scheme boringNotch
+          -project customNotch.xcodeproj \
+          -scheme customNotch
 
-    - name: Build Boring Notch
+    - name: Build Custom Notch
       if: matrix.language == 'swift'
       run: |
         set -o pipefail
 
         xcodebuild \
-          -project boringNotch.xcodeproj \
-          -scheme boringNotch \
+          -project customNotch.xcodeproj \
+          -scheme customNotch \
           -configuration Release \
           -destination "platform=macOS" \
-          -derivedDataPath "$RUNNER_TEMP/boringNotch-derived-data" \
+          -derivedDataPath "$RUNNER_TEMP/customNotch-derived-data" \
           CODE_SIGNING_ALLOWED=NO \
           CODE_SIGNING_REQUIRED=NO \
           build
