@@ -195,6 +195,7 @@ class CustomViewModel: NSObject, ObservableObject {
         
         // Force music information update when notch is opened
         MusicManager.shared.forceUpdate()
+        PluginManager.shared.broadcast(.notchDidOpen)
     }
 
     func close() {
@@ -216,6 +217,7 @@ class CustomViewModel: NSObject, ObservableObject {
         } else if !coordinator.openLastTabByDefault {
             coordinator.currentView = .home
         }
+        PluginManager.shared.broadcast(.notchDidClose)
     }
 
     func closeHello() {

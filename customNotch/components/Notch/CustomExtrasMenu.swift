@@ -29,13 +29,42 @@ struct CustomLargeButtons: View {
 
 struct CustomExtrasMenu : View {
     @ObservedObject var vm: CustomViewModel
+    @ObservedObject private var pluginRegistry = PluginRegistry.shared
     
     var body: some View {
-        VStack{
+        VStack(spacing: 12) {
             HStack(spacing: 20)  {
                 hide
                 settings
                 close
+            }
+            if !pluginRegistry.menuItems.isEmpty {
+                HStack(spacing: 12) {
+                    ForEach(pluginRegistry.menuItems) { item in
+                        Button {
+                            guard item.isEnabled() else { return }
+                            item.action()
+                        } label: {
+                            VStack(spacing: 6) {
+                                Image(systemName: item.systemImage ?? "puzzlepiece.extension")
+                                    .font(.system(size: 14, weight: .semibold))
+                                Text(item.title)
+                                    .font(.caption2)
+                                    .lineLimit(2)
+                                    .multilineTextAlignment(.center)
+                            }
+                            .frame(width: 70, height: 70)
+                            .background(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(.black)
+                            )
+                        }
+                        .buttonStyle(.plain)
+                        .disabled(!item.isEnabled())
+                        .opacity(item.isEnabled() ? 1 : 0.4)
+                        .shadow(color: .black.opacity(0.5), radius: 10)
+                    }
+                }
             }
         }
     }

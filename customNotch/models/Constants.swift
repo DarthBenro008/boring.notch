@@ -199,4 +199,8 @@ extension Defaults.Keys {
     }
 
     static let didClearLegacyURLCacheV1 = Key<Bool>("didClearLegacyURLCache_v1", default: false)
+
+    // MARK: Plugins
+    /// Per-plugin enable flags keyed by `PluginID.rawValue`. Missing key → use plugin `defaultEnabled`.
+    static let pluginEnabledState = Key<[String: Bool]>("pluginEnabledState", default: [:])
 }

@@ -51,6 +51,7 @@ custom.notch/
 │   ├── managers/             # Music, battery, calendar, volume, brightness, webcam
 │   ├── MediaControllers/     # Per-source media backends
 │   ├── components/           # SwiftUI views (Notch, Shelf, Settings, HUD, …)
+│   ├── Plugins/              # Plugin SDK, host, built-in plugins (file-synced group)
 │   ├── observers/            # Drag, fullscreen, media keys
 │   ├── private/              # Private API helpers (e.g. CGSSpace)
 │   ├── XPCHelperClient/      # Client for accessibility XPC service
@@ -173,6 +174,65 @@ Automated UI tests are limited; before merging feature work, smoke-test:
 
 GPL-3.0. Modifications must remain GPL-compatible. Preserve attribution for third-party code listed in `THIRD_PARTY_LICENSES` and for upstream Boring Notch in the README.
 
+## Plugin system
+
+Custom Notch supports **in-process, first-party Swift plugins** that register UI and behavior through a host API. Prefer plugins for new optional features (device control, audio picker, etc.) instead of hardcoding more `switch` cases in `ContentView`.
+
+### Layout
+
+```
+customNotch/Plugins/
+├── SDK/                 # PluginID, CustomNotchPlugin, PluginHost, surfaces, storage
+├── PluginManager.swift  # Lifecycle, enable map, built-in registration
+├── PluginRegistry.swift # Registered panels / menus / live activities / settings
+├── PluginHostImpl.swift # Host facade per active plugin
+├── Surfaces/            # PluginPanelHostView, PluginsSettingsView
+└── BuiltIn/
+    └── HelloSample/     # Reference plugin exercising all v1 surfaces
+```
+
+The `Plugins/` folder is a **PBXFileSystemSynchronizedRootGroup** — new Swift files under it are compiled automatically.
+
+### Surfaces plugins can register
+
+| API | Effect |
+|-----|--------|
+| `registerPanel` | Open-notch tab (`NotchViews.plugin(id)`) |
+| `registerLiveActivity` | Closed-notch chip (priority vs music) |
+| `registerMenuItems` | Extras menu actions |
+| `registerSettings` | Detail section under Settings → Plugins |
+| `showSneakPeek` | Temporary closed-notch toast (not gated on HUD replacement) |
+| `openNotch` / `closeNotch` | Expand/collapse notch windows |
+| `subscribe` | Host events (`didLaunch`, notch open/close, …) |
+
+### Add a built-in plugin
+
+1. Create `Plugins/BuiltIn/YourPlugin/YourPlugin.swift` conforming to `CustomNotchPlugin`.
+2. Register it in `PluginManager.registerBuiltIns()`:
+   ```swift
+   register(type: YourPlugin.self)
+   ```
+3. In `activate(host:)` register the surfaces you need (see `HelloSamplePlugin`).
+4. Set `metadata.defaultEnabled` and declare `capabilities` (network, wifiSSID, …).
+5. Build and toggle the plugin under **Settings → Plugins**.
+
+Enable state is stored in `Defaults[.pluginEnabledState]`. Per-plugin prefs go through `host.storage` (namespaced `UserDefaults` keys).
+
+### Wiring points in the host
+
+- Bootstrap: `AppDelegate.applicationDidFinishLaunching` → `PluginManager.shared.bootstrap()`
+- Tabs: `TabSelectionView` reads `PluginRegistry.orderedPanels`
+- Open content: `ContentView` `case .plugin(let id): PluginPanelHostView`
+- Closed chip: `PluginRegistry.activeLiveActivity()` in closed-notch priority chain
+- Settings: `PluginsSettingsView` sidebar item
+- Extras: `CustomExtrasMenu` lists `PluginRegistry.menuItems`
+
+### Planned follow-ups
+
+- Host services: `NWPathMonitor`, Wi‑Fi SSID (CoreWLAN + Location)
+- Sample plugins: WiZ lamp, system audio output picker
+- Optional later: load `.cnplugin` bundles from Application Support
+
 ## Useful entry points for new features
 
 | Feature area | Start here |
@@ -182,6 +242,7 @@ GPL-3.0. Modifications must remain GPL-compatible. Preserve attribution for thir
 | New live activity | `components/Live activities/`, `CustomViewCoordinator` sneak peek APIs |
 | New media source | `MediaControllers/` + `MediaControllerType` + `MusicManager` |
 | Shelf behavior | `components/Shelf/` |
+| **New optional feature (preferred)** | `Plugins/` + `CustomNotchPlugin` (see Hello Sample) |
 | Permissions / onboarding | `components/Onboarding/` |
 | Keyboard shortcuts | `Shortcuts/ShortcutConstants.swift`, KeyboardShortcuts package |
 

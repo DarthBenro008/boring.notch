@@ -82,6 +82,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             DistributedNotificationCenter.default().removeObserver(observer)
             screenUnlockedObserver = nil
         }
+        PluginManager.shared.shutdown()
         MusicManager.shared.destroy()
         cleanupDragDetectors()
         cleanupWindows()
@@ -279,7 +280,49 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         window.alphaValue = 1
     }
 
+    @MainActor
+    private func openAllNotchWindows() {
+        if Defaults[.showOnAllDisplays] {
+            viewModels.values.forEach { $0.open() }
+        } else {
+            vm.open()
+        }
+    }
+
+    @MainActor
+    private func closeAllNotchWindows() {
+        if Defaults[.showOnAllDisplays] {
+            viewModels.values.forEach { $0.close() }
+        } else {
+            vm.close()
+        }
+    }
+
     func applicationDidFinishLaunching(_ notification: Notification) {
+        PluginManager.shared.bootstrap()
+
+        NotificationCenter.default.addObserver(
+            forName: .pluginRequestOpenNotch,
+            object: nil,
+            queue: .main
+        ) { [weak self] note in
+            Task { @MainActor in
+                if let raw = note.object as? String {
+                    CustomViewCoordinator.shared.currentView = .plugin(PluginID(raw))
+                }
+                self?.openAllNotchWindows()
+            }
+        }
+
+        NotificationCenter.default.addObserver(
+            forName: .pluginRequestCloseNotch,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in
+                self?.closeAllNotchWindows()
+            }
+        }
 
         NotificationCenter.default.addObserver(
             self,

@@ -78,11 +78,12 @@ Inherited and extended from the upstream project:
 - [x] Shelf with AirDrop
 - [x] Notch sizing customization
 - [x] System HUD replacements (volume, brightness, backlight)
+- [x] Plugin system (in-process first-party plugins; Hello Sample included)
 - [ ] Bluetooth live activity
 - [ ] Weather integration
 - [ ] Customizable layout options
 - [ ] Lock screen widgets
-- [ ] Extension system
+- [ ] WiZ lamp / audio-output sample plugins
 - [ ] Additional Custom Notch–specific features (coming soon)
 
 ## Building from Source

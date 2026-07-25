@@ -18,6 +18,7 @@ enum SneakContentType {
     case mic
     case battery
     case download
+    case plugin
 }
 
 struct sneakPeek {
@@ -25,6 +26,7 @@ struct sneakPeek {
     var type: SneakContentType = .music
     var value: CGFloat = 0
     var icon: String = ""
+    var title: String = ""
 }
 
 struct SharedSneakPeek: Codable {
@@ -207,10 +209,10 @@ class CustomViewCoordinator: ObservableObject {
 
     func toggleSneakPeek(
         status: Bool, type: SneakContentType, duration: TimeInterval = 1.5, value: CGFloat = 0,
-        icon: String = ""
+        icon: String = "", title: String = ""
     ) {
         sneakPeekDuration = duration
-        if type != .music {
+        if type != .music && type != .plugin {
             // close()
             if !Defaults[.hudReplacement] {
                 return
@@ -222,12 +224,32 @@ class CustomViewCoordinator: ObservableObject {
                 self.sneakPeek.type = type
                 self.sneakPeek.value = value
                 self.sneakPeek.icon = icon
+                if !title.isEmpty {
+                    self.sneakPeek.title = title
+                }
             }
         }
 
         if type == .mic {
             currentMicStatus = value == 1
         }
+    }
+
+    /// Plugin sneak peeks always show (not gated on HUD replacement).
+    func togglePluginSneakPeek(
+        title: String,
+        systemImage: String,
+        value: CGFloat = 0,
+        duration: TimeInterval = 1.5
+    ) {
+        toggleSneakPeek(
+            status: true,
+            type: .plugin,
+            duration: duration,
+            value: value,
+            icon: systemImage,
+            title: title
+        )
     }
 
     private var sneakPeekDuration: TimeInterval = 1.5

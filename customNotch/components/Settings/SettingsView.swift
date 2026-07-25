@@ -54,9 +54,9 @@ struct SettingsView: View {
                 NavigationLink(value: "Shortcuts") {
                     Label("Shortcuts", systemImage: "keyboard")
                 }
-                // NavigationLink(value: "Extensions") {
-                //     Label("Extensions", systemImage: "puzzlepiece.extension")
-                // }
+                NavigationLink(value: "Plugins") {
+                    Label("Plugins", systemImage: "puzzlepiece.extension")
+                }
                 NavigationLink(value: "Advanced") {
                     Label("Advanced", systemImage: "gearshape.2")
                 }
@@ -87,8 +87,8 @@ struct SettingsView: View {
                     Shelf()
                 case "Shortcuts":
                     Shortcuts()
-                case "Extensions":
-                    GeneralSettings()
+                case "Plugins":
+                    PluginsSettingsView()
                 case "Advanced":
                     Advanced()
                 case "About":
